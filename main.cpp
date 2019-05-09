@@ -1,6 +1,6 @@
-#include "GL/freeglut.h""
+#include "GL/freeglut.h"
 #include <math.h>
-
+#include <stdio.h>
 using namespace std;
 
 // kut rotacije za smjer kamere
@@ -11,6 +11,84 @@ float lx = 0.0f, lz = -1.0f;
 float ly = 0.0f;
 // XZY pozicije kamere
 float x = 0.0f, z = 5.0f, y=2.5f;
+//flag vrata
+bool doortest = false;
+bool doorUlazna = false;
+bool doorKuhinja = false;
+bool doorDnevna = false;
+bool doorSobaDolje = false;
+bool doorKupatilo = false;
+
+GLuint texture;
+
+int checkDoor() {
+	if (x<12.0f && x>10.0f && y>0.0f && y<5.0f && z<12.0f && z>8.0f && lx<0.5f && lx>-0.5f) {
+		return 0;
+	}
+	else if (x<4.7f && x>3.55f && y>1.05f && y<3.05f && z<2.0f && z>-2.0f && lx<0.5f && lx>-0.5f) {
+		return 1;
+	}
+	else if (x>1.25f && x<5.25f && y>1.05f && y<3.05f && z<-2.5f && z>-3.2f && lz<0.5f && lz>-0.5f) {
+		return 2;
+	}
+	else if (x>3.75f && x<4.5f && y>1.05f && y<3.05f && z>-6.7f && z<-2.4f && lx<0.5f && lx>-0.5f) {
+		return 3;
+	}
+	else if (x > 4.8f && x<5.5f && y>1.05f && y<3.05f && z>-6.7f && z < -2.4f && lx<0.5f && lx>-0.5f) {
+		return 4;
+	}
+	else if (x > 3.7f && x<7.7f && y>1.05f && y<3.05f && z>-4.4f && z < -3.6f && lz<0.5f && lz>-0.5f) {
+		return 5;
+	}
+	return 0;
+}
+
+GLuint LoadTexture(const char* filename)
+{
+
+	GLuint texture;
+
+	int width, height;
+
+	unsigned char* data;
+
+	FILE* file;
+
+	file = fopen(filename, "rb");
+
+	if (file == NULL) return 0;
+	width = 256;
+	height = 256;
+	data = (unsigned char*)malloc(width * height * 3);
+	//int size = fseek(file,);
+	fread(data, width * height * 3, 1, file);
+	fclose(file);
+
+	for (int i = 0; i < width * height; ++i)
+	{
+		int index = i * 3;
+		unsigned char B, R;
+		B = data[index];
+		R = data[index + 2];
+
+		data[index] = R;
+		data[index + 2] = B;
+
+	}
+
+
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	gluBuild2DMipmaps(GL_TEXTURE_2D, 3, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
+	free(data);
+
+	return texture;
+}
 
 void changeSize(int w, int h)
 {
@@ -939,6 +1017,13 @@ void render()
 		glVertex3f(8.1f, 4.025f, -9.1f);
 		glVertex3f(8.1f, 4.025f, -1.9f);
 
+		//plafon 2.kat
+		glColor3f(0.3f, 0.3f, 0.3f);
+		glVertex3f(0.0f, 6.475f, 0.0f);
+		glVertex3f(8.1f, 6.475f, 0.0f);
+		glVertex3f(8.1f, 6.475f, -9.1f);
+		glVertex3f(0.0f, 6.475f, -9.1f);
+
 		//mali dio kod stepenica
 		glColor3f(0.6f, 0.6f, 0.6f);
 		glVertex3f(4.8f, 3.65f, -0.4f);
@@ -1618,9 +1703,337 @@ void render()
 		glVertex3f(0.0f, 6.475f, 0.0f);
 		glVertex3f(0.0f, 3.65f, 0.0f);
 
+		//balkon jug
+
+		glColor3f(0.75f, 0.6f, 0.38f);
+		glVertex3f(2.65f, 4.025f, 0.0f);//pod balk.
+		glVertex3f(2.65f, 4.025f, 1.0f);
+		glVertex3f(5.2f, 4.025f, 1.0f);
+		glVertex3f(5.2f, 4.025f, 0.0f);
+
+		glColor3f(0.9f, 0.9f, 0.9f);
+		glVertex3f(2.65f, 3.925f, 0.0f);
+		glVertex3f(2.65f, 3.925f, 1.0f);
+		glVertex3f(5.2f, 3.925f, 1.0f);
+		glVertex3f(5.2f, 3.925f, 0.0f);
+
+		glColor3f(0.9f, 0.9f, 0.9f);
+		glVertex3f(2.65f, 3.925f, 1.0f);
+		glVertex3f(2.65f, 4.025f, 1.0f);
+		glVertex3f(5.2f, 4.025f, 1.0f);
+		glVertex3f(5.2f, 3.925f, 1.0f);
+
+		glColor3f(0.9f, 0.9f, 0.9f);
+		glVertex3f(2.65f, 3.925f, 1.0f);
+		glVertex3f(2.65f, 4.025f, 1.0f);
+		glVertex3f(2.65f, 4.025f, 0.0f);
+		glVertex3f(2.65f, 3.925f, 0.0f);
+
+		glColor3f(0.9f, 0.9f, 0.9f);
+		glVertex3f(5.2f, 3.925f, 1.0f);
+		glVertex3f(5.2f, 4.025f, 1.0f);
+		glVertex3f(5.2f, 4.025f, 0.0f);
+		glVertex3f(5.2f, 3.925f, 0.0f);
+
+		//balkon sjever
+		glColor3f(0.75f, 0.6f, 0.38f);
+		glVertex3f(0.0f, 4.025f, -9.1f);//pod
+		glVertex3f(0.0f, 4.025f, -10.3f);
+		glVertex3f(8.1f, 4.025f, -10.3f);
+		glVertex3f(8.1f, 4.025f, -9.1f);
+
+		glColor3f(0.9f, 0.9f, 0.9f);
+		glVertex3f(0.0f, 3.925f, -9.1f);//ispod
+		glVertex3f(0.0f, 3.925f, -10.3f);
+		glVertex3f(8.1f, 3.925f, -10.3f);
+		glVertex3f(8.1f, 3.925f, -9.1f);
+
+		glColor3f(0.9f, 0.9f, 0.9f);
+		glVertex3f(0.0f, 3.925f, -10.3f);//strane
+		glVertex3f(0.0f, 4.025f, -10.3f);
+		glVertex3f(8.1f, 4.025f, -10.3f);
+		glVertex3f(8.1f, 3.925f, -10.3f);
+
+		glColor3f(0.9f, 0.9f, 0.9f);
+		glVertex3f(8.1f, 3.925f, -9.1f);
+		glVertex3f(8.1f, 4.025f, -9.1f);
+		glVertex3f(8.1f, 4.025f, -10.3f);
+		glVertex3f(8.1f, 3.925f, -10.3f);
+
+		glColor3f(0.9f, 0.9f, 0.9f);
+		glVertex3f(0.0f, 3.925f, -9.1f);
+		glVertex3f(0.0f, 4.025f, -9.1f);
+		glVertex3f(0.0f, 4.025f, -10.3f);
+		glVertex3f(0.0f, 3.925f, -10.3f);
+
 	glEnd();
 
+	glBegin(GL_TRIANGLES);
+		//zid do krova
+		glColor3f(0.95f, 0.95f, 0.95f);
+		glVertex3f(0.0f, 6.475f, 0.0f);
+		glVertex3f(8.1f, 6.475f, 0.0f);
+		glVertex3f(4.05f, 7.975f, 0.0f);
 
+		glColor3f(0.95f, 0.95f, 0.95f);
+		glVertex3f(0.0f, 6.475f, -9.1f);
+		glVertex3f(8.1f, 6.475f, -9.1f);
+		glVertex3f(4.05f, 7.975f, -9.1f);
+	glEnd();
+
+	glBegin(GL_QUADS);
+		//krov
+		glColor3f(0.65f, 0.05f, 0.1f);
+		glVertex3f(4.05f, 7.975f, 0.5f);//prema zapadu dolje
+		glVertex3f(4.05f, 7.975f, -9.6f);
+		glVertex3f(-0.5f, 6.29f, -9.6f);
+		glVertex3f(-0.5f, 6.29f, 0.5f);
+
+		glColor3f(0.65f, 0.05f, 0.1f);
+		glVertex3f(4.05f, 7.975f, 0.5f);//prema istoku dolje
+		glVertex3f(4.05f, 7.975f, -9.6f);
+		glVertex3f(8.6f, 6.29f, -9.6f);
+		glVertex3f(8.6f, 6.29f, 0.5f);
+
+		glColor3f(0.75f, 0.05f, 0.05f);
+		glVertex3f(4.05f, 8.175f, 0.5f);//prema zapadu gore
+		glVertex3f(4.05f, 8.175f, -9.6f);
+		glVertex3f(-0.5f, 6.49f, -9.6f);
+		glVertex3f(-0.5f, 6.49f, 0.5f);
+
+		glColor3f(0.75f, 0.05f, 0.05f);
+		glVertex3f(4.05f, 8.175f, 0.5f);//prema zapadu gore
+		glVertex3f(4.05f, 8.175f, -9.6f);
+		glVertex3f(8.6f, 6.49f, -9.6f);
+		glVertex3f(8.6f, 6.49f, 0.5f);
+
+		glColor3f(0.7f, 0.1f, 0.0f);
+		glVertex3f(4.05f, 8.175f, 0.5f);
+		glVertex3f(4.05f, 7.975f, 0.5f);
+		glVertex3f(-0.5f, 6.29f, 0.5f);
+		glVertex3f(-0.5f, 6.49f, 0.5f);
+
+		glColor3f(0.7f, 0.1f, 0.0f);
+		glVertex3f(4.05f, 8.175f, 0.5f);
+		glVertex3f(4.05f, 7.975f, 0.5f);
+		glVertex3f(8.6f, 6.29f, 0.5f);
+		glVertex3f(8.6f, 6.49f, 0.5f);
+
+		glColor3f(0.7f, 0.1f, 0.0f);
+		glVertex3f(4.05f, 8.175f, -9.6f);
+		glVertex3f(4.05f, 7.975f, -9.6f);
+		glVertex3f(8.6f, 6.29f, -9.6f);
+		glVertex3f(8.6f, 6.49f, -9.6f);
+
+		glColor3f(0.7f, 0.1f, 0.0f);
+		glVertex3f(4.05f, 8.175f, -9.6f);
+		glVertex3f(4.05f, 7.975f, -9.6f);
+		glVertex3f(-0.5f, 6.29f, -9.6f);
+		glVertex3f(-0.5f, 6.49f, -9.6f);
+
+		glColor3f(0.7f, 0.1f, 0.0f);
+		glVertex3f(-0.5f, 6.49f, 0.5f);
+		glVertex3f(-0.5f, 6.29f, 0.5f);
+		glVertex3f(-0.5f, 6.29f, -9.6f);
+		glVertex3f(-0.5f, 6.49f, -9.6f);
+
+		glColor3f(0.7f, 0.1f, 0.0f);
+		glVertex3f(8.6f, 6.49f, 0.5f);
+		glVertex3f(8.6f, 6.29f, 0.5f);
+		glVertex3f(8.6f, 6.29f, -9.6f);
+		glVertex3f(8.6f, 6.49f, -9.6f);
+
+	glEnd();
+
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	//vrata test
+	glPushMatrix();
+	if (doortest) {
+		glTranslatef(0.0f, 0.0f, 20.0f);
+		glRotatef(90, 0.0f, 1.0f, 0.0f);
+
+	}
+	glBegin(GL_QUADS);
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(10.0f, 0.0f, 10.0f);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(10.0f, 5.0f, 10.0f);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(12.0f, 5.0f, 10.0f);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(12.0f, 0.0f, 10.0f);
+	glEnd();
+	glPopMatrix();
+
+	glPushMatrix();//ulazna vrata
+	if (doorUlazna) {
+		glTranslatef(3.55f, 0.0f, -0.05f);
+		glRotatef(90, 0.0f, 1.0f, 0.0f);
+		glTranslatef(-3.55f, 0.0f, 0.05f);
+	}
+	glBegin(GL_QUADS);
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(3.55f, 1.05f, -0.05f);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(3.55f, 3.05f, -0.05f);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(4.7f, 3.05f, -0.05f);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(4.7f, 1.05f, -0.05f);
+
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(3.55f, 1.05f, 0.0f);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(3.55f, 3.05f, 0.0f);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(4.7f, 3.05f, 0.0f);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(4.7f, 1.05f, 0.0f);
+
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(3.55f, 3.05f, 0.0f);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(3.55f, 3.05f, -0.05f);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(4.7f, 3.05f, -0.05f);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(4.7f, 3.05f, 0.0f);
+
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(3.55f, 1.05f, 0.0f);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(3.55f, 3.05f, 0.0f);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(3.55f, 3.05f, -0.05f);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(3.55f, 1.05f, -0.05f);
+
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(4.7f, 1.05f, 0.0f);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(4.7f, 3.05f, 0.0f);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(4.7f, 3.05f, -0.05f);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(4.7f, 1.05f, -0.05f);
+	glEnd();
+	glPopMatrix();
+	
+	glPushMatrix();//kuhinjska vrata
+	if (doorKuhinja) {
+		glTranslatef(3.25f, 0.0f, -2.5f);
+		glRotatef(90, 0.0f, 1.0f, 0.0f);
+		glTranslatef(-3.25f, 0.0f, 2.5f);
+	}
+	glBegin(GL_QUADS);
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(3.25f, 1.05f, -2.5f);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(3.25f, 3.05f, -2.5f);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(3.25f, 3.05f, -3.2f);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(3.25f, 1.05f, -3.2f);
+
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(3.3f, 1.05f, -2.5f);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(3.3f, 3.05f, -2.5f);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(3.3f, 3.05f, -3.2f);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(3.3f, 1.05f, -3.2f);
+
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(3.25f, 3.05f, -2.5f);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(3.3f, 3.05f, -2.5f);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(3.3f, 3.05f, -3.2f);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(3.25f, 3.05f, -3.2f);
+
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(3.3f, 1.05f, -3.2f);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(3.3f, 3.05f, -3.2f);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(3.25f, 3.05f, -3.2f);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(3.25f, 1.05f, -3.2f);
+
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(3.3f, 1.05f, -2.5f);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(3.3f, 3.05f, -2.5f);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(3.25f, 3.05f, -2.5f);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(3.25f, 1.05f, -2.5f);
+	glEnd();
+	glPopMatrix();
+
+	glPushMatrix();//vrata dnevna
+	if (doorDnevna) {
+		glTranslatef(4.5f, 0.0f, -4.7f);
+		glRotatef(-90, 0.0f, 1.0f, 0.0f);
+		glTranslatef(-4.5f, 0.0f, 4.7f);
+	}
+	glBegin(GL_QUADS);
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(3.75f, 1.05f, -4.7f);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(3.75f, 3.05f, -4.7f);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(4.5f, 3.05f, -4.7f);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(4.5f, 1.05f, -4.7f);
+			   
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(3.75f, 1.05f, -4.65f);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(3.75f, 3.05f, -4.65f);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(4.5f, 3.05f, -4.65f);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(4.5f, 1.05f, -4.65f);
+
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(3.75f, 3.05f, -4.65f);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(3.75f, 3.05f, -4.7f);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(4.5f, 3.05f, -4.7f);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(4.5f, 3.05f, -4.65f);
+
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(3.75f, 1.05f, -4.65f);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(3.75f, 3.05f, -4.65f);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(3.75f, 3.05f, -4.7f);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(3.75f, 1.05f, -4.7f);
+
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(4.5f, 1.05f, -4.65f);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(4.5f, 3.05f, -4.65f);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(4.5f, 3.05f, -4.7f);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(4.5f, 1.05f, -4.7f);
+	glEnd();
+	glPopMatrix();
+
+	glPushMatrix();//vrata soba dolje
+	if (doorSobaDolje) {
+		glTranslatef(4.8f, 0.0f, -4.7f);
+		glRotatef(90, 0.0f, 1.0f, 0.0f);
+		glTranslatef(-4.8f, 0.0f, 4.7f);
+	}
+	glBegin(GL_QUADS);
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(4.8f, 1.05f, -4.7f);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(4.8f, 3.05f, -4.7f);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(5.5f, 3.05f, -4.7f);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(5.5f, 1.05f, -4.7f);
+
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(4.8f, 1.05f, -4.65f);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(4.8f, 3.05f, -4.65f);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(5.5f, 3.05f, -4.65f);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(5.5f, 1.05f, -4.65f);
+
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(4.8f, 3.05f, -4.65f);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(4.8f, 3.05f, -4.7f);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(5.5f, 3.05f, -4.7f);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(5.5f, 3.05f, -4.65f);
+
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(4.8f, 1.05f, -4.65f);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(4.8f, 3.05f, -4.65f);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(4.8f, 3.05f, -4.7f);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(4.8f, 1.05f, -4.7f);
+
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(5.5f, 1.05f, -4.65f);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(5.5f, 3.05f, -4.65f);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(5.5f, 3.05f, -4.7f);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(5.5f, 1.05f, -4.7f);
+	glEnd();
+	glPopMatrix();
+
+	glPushMatrix();//vrata kupatilo
+	if (doorKupatilo) {
+		glTranslatef(5.7f, 0.0f, -4.4f);
+		glRotatef(90, 0.0f, 1.0f, 0.0f);
+		glTranslatef(-5.7f, 0.0f, 4.4f);
+	}
+	glBegin(GL_QUADS);
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(5.7f, 1.05f, -4.4f);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(5.7f, 3.05f, -4.4f);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(5.7f, 3.05f, -3.6f);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(5.7f, 1.05f, -3.6f);
+
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(5.65f, 1.05f, -4.4f);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(5.65f, 3.05f, -4.4f);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(5.65f, 3.05f, -3.6f);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(5.65f, 1.05f, -3.6f);
+
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(5.7f, 3.05f, -4.4f);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(5.65f, 3.05f, -4.4f);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(5.65f, 3.05f, -3.6f);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(5.7f, 3.05f, -3.6f);
+
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(5.7f, 1.05f, -4.4f);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(5.7f, 3.05f, -4.4f);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(5.65f, 3.05f, -4.4f);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(5.65f, 1.05f, -4.4f);
+
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(5.7f, 1.05f, -3.6);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(5.7f, 3.05f, -3.6f);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(5.65f, 3.05f, -3.6f);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(5.65f, 1.05f, -3.6f);
+
+	glEnd();
+	glPopMatrix();
+
+	glDisable(GL_TEXTURE_2D);
 	glutSwapBuffers();
 }
 
@@ -1633,6 +2046,7 @@ void processNormalKeys(unsigned char key, int x, int y) {
 void processSpecialKeys(int key, int xx, int yy) {
 
 	float fraction = 0.25f;
+	int doorNumber;
 
 	switch (key) {
 	case GLUT_KEY_LEFT:
@@ -1666,18 +2080,43 @@ void processSpecialKeys(int key, int xx, int yy) {
 	case GLUT_KEY_HOME:
 		angley += 0.08f;
 		ly = tan(angley);
-				break;
+		break;
+	case GLUT_KEY_INSERT:
+		doorNumber = checkDoor();
+		switch (doorNumber) {
+		case 0:
+			doortest = !doortest;
+			break;
+		case 1:
+			doorUlazna = !doorUlazna;
+			break;
+		case 2:
+			doorKuhinja = !doorKuhinja;
+			break;
+		case 3:
+			doorDnevna = !doorDnevna;
+			break;
+		case 4:
+			doorSobaDolje = !doorSobaDolje;
+			break;
+		case 5:
+			doorKupatilo = !doorKupatilo;
+		}
 	}
+
 	glutPostRedisplay();
 }
 
 int main(int argc, char* argv[]) {
-
 	glutInit(&argc, argv);
+
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutInitWindowSize(1280, 720);
 	glutCreateWindow("3D Model Kuce");
 	glEnable(GL_DEPTH_TEST);
+
+	texture = LoadTexture("door.bmp");
+
 	glClearDepth(1);
 	glutReshapeFunc(changeSize);
 	glutDisplayFunc(render);
