@@ -12,6 +12,7 @@ float ly = 0.0f;
 // XZY pozicije kamere
 float x = 0.0f, z = 5.0f, y=2.5f;
 //flag vrata
+int doorNumber;
 bool doortest = false;
 bool doorUlazna = false;
 bool doorKuhinja = false;
@@ -2039,14 +2040,38 @@ void render()
 
 void processNormalKeys(unsigned char key, int x, int y) {
 
-	if (key == 27)
+	if (key == 27) {
 		exit(0);
+	}
+	else if (key == 13) {
+		doorNumber = checkDoor();
+		switch (doorNumber) {
+		case 0:
+			doortest = !doortest;
+			break;
+		case 1:
+			doorUlazna = !doorUlazna;
+			break;
+		case 2:
+			doorKuhinja = !doorKuhinja;
+			break;
+		case 3:
+			doorDnevna = !doorDnevna;
+			break;
+		case 4:
+			doorSobaDolje = !doorSobaDolje;
+			break;
+		case 5:
+			doorKupatilo = !doorKupatilo;
+		}
+	}
+
+	glutPostRedisplay();
 }
 
 void processSpecialKeys(int key, int xx, int yy) {
 
 	float fraction = 0.25f;
-	int doorNumber;
 
 	switch (key) {
 	case GLUT_KEY_LEFT:
