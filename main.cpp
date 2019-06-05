@@ -1,7 +1,6 @@
 #include "GL/freeglut.h"
 #include <math.h>
 #include <stdio.h>
-using namespace std;
 
 // kut rotacije za smjer kamere
 float angle = 0.0;
@@ -26,7 +25,7 @@ bool doorRadnaSoba = false;
 
 GLuint texture;
 
-int checkDoor() {
+int CheckDoor() {
 	if (x<4.7f && x>3.55f && y > 1.05f && y < 3.05f && z<2.0f && z>-2.0f && lx<0.5f && lx>-0.5f) {
 		return 1;
 	}
@@ -60,39 +59,27 @@ int checkDoor() {
 	return 0;
 }
 
-GLuint LoadTexture(const char* filename)
-{
-
+GLuint LoadTexture(const char* filename){
 	GLuint texture;
-
 	int width, height;
-
 	unsigned char* data;
-
 	FILE* file;
-
 	file = fopen(filename, "rb");
 
 	if (file == NULL) return 0;
 	width = 256;
 	height = 256;
 	data = (unsigned char*)malloc(width * height * 3);
-	//int size = fseek(file,);
 	fread(data, width * height * 3, 1, file);
 	fclose(file);
-
-	for (int i = 0; i < width * height; ++i)
-	{
+	for (int i = 0; i < width * height; ++i){		
 		int index = i * 3;
 		unsigned char B, R;
 		B = data[index];
 		R = data[index + 2];
-
 		data[index] = R;
 		data[index + 2] = B;
-
 	}
-
 
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
@@ -103,7 +90,6 @@ GLuint LoadTexture(const char* filename)
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 	gluBuild2DMipmaps(GL_TEXTURE_2D, 3, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
 	free(data);
-
 	return texture;
 }
 
@@ -129,10 +115,10 @@ void render()
 	
 	gluLookAt(	x, y, z,
 				x + lx, y+ly, z + lz,
-				0.0f, 3.5f, 0.0f);
+				0.0f, 1.0f, 0.0f);
 
 	//vanjski pod
-	glColor3f(0.1f,0.9f,0.1f);
+	glColor3f(0.3f,0.8f,0.3f);
 	glBegin(GL_QUADS);
 		glVertex3f(-100.0f, 0.0f, -100.0f);
 		glVertex3f(-100.0f, 0.0f, 100.0f);
@@ -181,7 +167,7 @@ void render()
 		glVertex3f(8.1f, 1.05f, -9.1f);
 		glVertex3f(0.0f, 1.05f, -9.1f);
 
-		//plafon 1.kat
+		//plafon 1.kat  
 		glColor3f(0.3f, 0.3f, 0.3f);
 		glVertex3f(0.0f, 3.65f, 0.0f);
 		glVertex3f(0.0f, 3.65f, -9.1f);
@@ -204,7 +190,7 @@ void render()
 		glVertex3f(4.8f, 3.65f, -0.4f);
 		glVertex3f(4.8f, 3.65f, 0.0f);
 		glVertex3f(8.1f, 3.65f, 0.0f);
-		glVertex3f(8.1f, 3.65f, -0.4f);
+		glVertex3f(8.1f, 3.65f, -0.4f); 
 
 		//vanjski zidovi sjever
 		glColor3f(0.95f, 0.95f, 0.95f);
@@ -2319,6 +2305,7 @@ void render()
 	glPopMatrix();
 
 	glDisable(GL_TEXTURE_2D);
+
 	glutSwapBuffers();
 }
 
@@ -2328,7 +2315,7 @@ void processNormalKeys(unsigned char key, int x, int y) {
 		exit(0);
 	}
 	else if (key == 13) {
-		doorNumber = checkDoor();
+		doorNumber = CheckDoor();
 		switch (doorNumber) {
 		case 1:
 			doorUlazna = !doorUlazna;
@@ -2404,7 +2391,7 @@ void processSpecialKeys(int key, int xx, int yy) {
 		ly = tan(angley);
 		break;
 	case GLUT_KEY_INSERT:
-		doorNumber = checkDoor();
+		doorNumber = CheckDoor();
 		switch (doorNumber) {
 		case 1:
 			doorUlazna = !doorUlazna;
